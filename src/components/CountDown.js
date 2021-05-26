@@ -14,17 +14,22 @@ const CountDown = ({ minutes = 20, isPaused = true, onProgress, onEnd }) => {
     setMilis((time) => {
       if (time === 0) {
         clearInterval(interval.current);
-        onEnd();
         return time;
       }
       const leftTime = time - 1000;
-      onProgress(leftTime / minutesToMilis(minutes));
       return leftTime;
     });
   };
   useEffect(() => {
     setMilis(minutesToMilis(minutes));
   }, [minutes]);
+
+  useEffect(() => {
+    onProgress(milis / minutesToMilis(minutes));
+    if (milis === 0) {
+      onEnd();
+    }
+  }, [milis]);
 
   useEffect(() => {
     if (isPaused) {

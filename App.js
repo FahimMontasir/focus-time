@@ -1,11 +1,15 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import FocusButton from "./src/components/FocusButton";
 import FocusHistory from "./src/components/FocusHistory";
 import Focus from "./src/screens/Focus";
 import Timer from "./src/screens/Timer";
 import { colors } from "./src/utils/colors";
 import { space } from "./src/utils/size";
+
 const STATUS = {
   completed: 1,
   cancelled: 0,
@@ -15,9 +19,39 @@ export default function App() {
   const [history, setHistory] = useState([]);
 
   const handleHistory = (subject, status) => {
-    setHistory([...history, { subject, status }]);
+    setHistory([
+      ...history,
+      { key: String(history.length + 1), subject, status },
+    ]);
   };
-  console.log(history);
+
+  const saveHistory = async () => {
+    try {
+      const data = JSON.stringify(history);
+      await AsyncStorage.setItem("@asyncHistory", data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const historyAsync = await AsyncStorage.getItem("@asyncHistory");
+      if (historyAsync && JSON.parse(historyAsync).length) {
+        setHistory(JSON.parse(historyAsync));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  useEffect(() => {
+    saveHistory();
+  }, [history]);
+
   return (
     <View style={styles.container}>
       {focus ? (
@@ -35,7 +69,12 @@ export default function App() {
       ) : (
         <>
           <Focus addFocus={setFocus} />
-          {history.length > 0 && <FocusHistory focusHistory={history} />}
+          {history.length > 0 && (
+            <>
+              <FocusHistory focusHistory={history} />
+              <FocusButton title="Clear" onPress={() => setHistory([])} />
+            </>
+          )}
         </>
       )}
       <StatusBar style="light" />

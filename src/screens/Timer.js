@@ -68,7 +68,7 @@ const Timer = ({ focusName, onTimerEnd, clearFocus }) => {
         )}
       </View>
       <View style={styles.backBtn}>
-        <FocusButton title="Clr" onPress={clearFocus} />
+        <FocusButton title="-" onPress={clearFocus} size={60} />
       </View>
     </View>
   );
