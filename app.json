@@ -23,10 +23,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.webgrammer.focustime"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "This app will help you to keep always stay focused.",
+    "githubUrl": "https://github.com/FahimMontasir/focus-time"
   }
 }
