@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet, Vibration, Platform } from "react-native";
 import CountDown from "../components/CountDown";
 import { colors } from "../utils/colors";
 import { size } from "../utils/size";
 import FocusButton from "../components/FocusButton";
 import { ProgressBar } from "react-native-paper";
 import Timing from "../components/Timing";
+import { useKeepAwake } from "expo-keep-awake";
 
-const Timer = ({ focusName }) => {
+const Timer = ({ focusName, onTimerEnd, clearFocus }) => {
+  useKeepAwake();
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(1);
-  const [minutes, setMinutes] = useState(20);
+  const [minutes, setMinutes] = useState(0.1);
   const onProgress = (p) => {
     setProgress(p);
   };
@@ -19,9 +21,25 @@ const Timer = ({ focusName }) => {
     setProgress(1);
     setIsPaused(false);
   };
+  const vibrate = () => {
+    if (Platform.OS === "ios") {
+      const interval = setInterval(() => Vibration.vibrate(), 1000);
+      setTimeout(() => clearInterval(interval), 5000);
+    } else {
+      Vibration.vibrate(5000);
+    }
+  };
+  const onEnd = () => {
+    vibrate();
+    setMinutes(0);
+    setProgress(1);
+    setIsPaused(false);
+    onTimerEnd();
+  };
   return (
-    <View>
+    <View style={styles.container}>
       <CountDown
+        onEnd={onEnd}
         minutes={minutes}
         isPaused={!isPaused}
         onProgress={onProgress}
@@ -49,12 +67,18 @@ const Timer = ({ focusName }) => {
           />
         )}
       </View>
+      <View style={styles.backBtn}>
+        <FocusButton title="Clr" onPress={clearFocus} />
+      </View>
     </View>
   );
 };
 export default Timer;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   title: {
     fontSize: size.sm,
     color: colors.white,
@@ -63,5 +87,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 30,
     alignItems: "center",
+  },
+  backBtn: {
+    position: "absolute",
+    bottom: 20,
   },
 });

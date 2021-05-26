@@ -4,7 +4,7 @@ import { Text, View, StyleSheet } from "react-native";
 const minutesToMilis = (min) => min * 60 * 1000;
 const formatTime = (time) => (time < 10 ? `0${time}` : time);
 
-const CountDown = ({ minutes = 20, isPaused = true, onProgress }) => {
+const CountDown = ({ minutes = 20, isPaused = true, onProgress, onEnd }) => {
   const [milis, setMilis] = useState(null);
   const minute = Math.floor(milis / 60 / 1000) % 60;
   const seconds = Math.floor(milis / 1000) % 60;
@@ -13,6 +13,8 @@ const CountDown = ({ minutes = 20, isPaused = true, onProgress }) => {
   const countdown = () => {
     setMilis((time) => {
       if (time === 0) {
+        clearInterval(interval.current);
+        onEnd();
         return time;
       }
       const leftTime = time - 1000;
@@ -46,6 +48,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "rgba(22,22,22,0.2)",
     padding: 5,
+    marginTop: 50,
   },
   counter: {
     fontSize: 70,
